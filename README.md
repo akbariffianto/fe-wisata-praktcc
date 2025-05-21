@@ -1,25 +1,29 @@
-# Notes Application Frontend
+# Tour Recommendation Application
 
-A simple notes application frontend built with React and TailwindCSS.
+A tour recommendation application built with React and TailwindCSS.
 
 ## Technologies Used
 
 - React.js
 - TailwindCSS
-- Axios for API requests
 - React Router for navigation
 
 ## Features
 
 - User Authentication
   - Login
-  - Register
   - Logout
-- Notes Management
-  - Create notes
-  - View notes
-  - Update notes
-  - Delete notes
+- Tour Management
+  - View tour recommendations
+  - Add new tour recommendations
+  - Filter tours by category, budget, and likes
+  - Rate and comment on tours
+  - Bookmark favorite tours
+- Detailed Tour View
+  - View tour details
+  - See ratings and reviews
+  - Add comments
+  - Save to bookmarks
 
 ## Project Setup
 
@@ -36,27 +40,49 @@ npm run dev
 ## Project Structure
 
 ```
-notes_fe/
+react-notes-cc/
 ├── src/
-│   ├── auth/         # Authentication related components
 │   ├── components/   # Reusable components
-│   ├── pages/        # Page components
+│   │   ├── BlogCard.jsx
+│   │   └── FilterDropdown.jsx
+│   ├── pages/       # Page components
 │   │   ├── LoginPage.jsx
-│   │   ├── RegisterPage.jsx
-│   │   └── NotesPage.jsx
-│   └── utils/        # Utility functions and constants
+│   │   ├── TourPage.jsx
+│   │   ├── DetailTour.jsx
+│   │   └── InputTourPages.jsx
+│   └── routes/      # Routing configuration
+│       └── RouterApp.jsx
 └── README.md
 ```
 
-## Environment Setup
+## Features Details
 
-Create a `.env` file in the root directory with:
-```
-VITE_API_URL=your_backend_api_url
-```
+### Tour Listing
+- Display tour cards with images and basic information
+- Filter tours by:
+  - Category (Nature, Culture, Culinary)
+  - Budget range
+  - Number of likes
+
+### Tour Details
+- View detailed information about each tour
+- See ratings and location
+- Read and add comments
+- Save tours to bookmarks
+
+### Tour Input
+- Add new tour recommendations
+- Upload tour images
+- Set tour details including:
+  - Name
+  - Location
+  - Description
+  - Budget
+  - Rating (1-5 scale)
 
 ## Notes
 
-- The application uses JWT for authentication
-- All API requests are made to the backend using Axios
 - Responsive design implemented using TailwindCSS
+- Modern UI with card-based layout
+- Interactive elements with hover effects
+- Form validation for tour inputs
