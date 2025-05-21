@@ -29,7 +29,7 @@ const LoginPage = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
             >
-              <a href="/tourpage"></a>Login
+              <a href="/tourpage">Login</a>
             </button>
             <div className="">
               <p className="text-center text-gray-600">
