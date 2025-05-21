@@ -6,24 +6,13 @@ import { useAuthContext } from "../auth/AuthProvider";
 const TourPages = () => {
   const { userInfo } = useAuthContext();
   const [kategori, setKategori] = useState("");
-  const [anggaran, setAnggaran] = useState("");
-  const [jumlahSuka, setJumlahSuka] = useState("");
+  const [rating, setRating] = useState(0);
 
   const filterOptions = {
     kategori: [
       { value: "alam", label: "Alam" },
       { value: "budaya", label: "Budaya" },
       { value: "kuliner", label: "Kuliner" },
-    ],
-    anggaran: [
-      { value: "1-500", label: "1-500rb" },
-      { value: "500-1000", label: "500rb-1jt" },
-      { value: "1000-5000", label: "1jt-5jt" },
-    ],
-    jumlahSuka: [
-      { value: "1-10", label: "1-10 Suka" },
-      { value: "10-50", label: "10-50 Suka" },
-      { value: "50-100", label: "50-100 Suka" },
     ],
   };
 
@@ -35,6 +24,8 @@ const TourPages = () => {
       views: 35,
       likes: 20,
       comments: 15,
+      category: "alam",
+      rating: 4.5,
     },
     {
       imageUrl: "https://loremflickr.com/320/240?random=2",
@@ -43,6 +34,8 @@ const TourPages = () => {
       views: 42,
       likes: 25,
       comments: 18,
+      category: "alam",
+      rating: 4.0,
     },
     {
       imageUrl: "https://loremflickr.com/320/240?random=3",
@@ -51,6 +44,8 @@ const TourPages = () => {
       views: 38,
       likes: 22,
       comments: 12,
+      category: "kuliner",
+      rating: 3.5,
     },
   ];
 
@@ -89,32 +84,45 @@ const TourPages = () => {
             </div>
           </div>
 
-          {/* Filter Section */}
-          <div className="flex gap-4 mb-8">
-            <FilterDropdown
-              title="Kategori"
-              options={filterOptions.kategori}
-              value={kategori}
-              onChange={setKategori}
-            />
-            <FilterDropdown
-              title="Anggaran"
-              options={filterOptions.anggaran}
-              value={anggaran}
-              onChange={setAnggaran}
-            />
-            <FilterDropdown
-              title="Jumlah Suka"
-              options={filterOptions.jumlahSuka}
-              value={jumlahSuka}
-              onChange={setJumlahSuka}
-            />
+          {/* Updated Filter Section */}
+          <div className="flex items-center gap-8 mb-8">
+            <div className="w-48">
+              <FilterDropdown
+                title="Kategori"
+                options={filterOptions.kategori}
+                value={kategori}
+                onChange={setKategori}
+              />
+            </div>
+            
+            <div className="flex-1 max-w-md">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rating Minimum: {rating.toFixed(1)}
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={rating}
+                  onChange={(e) => setRating(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-600 w-12">
+                  {rating.toFixed(1)}/5
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-6 mt-10">
-            {blogPosts.map((post, index) => (
-              <BlogCard key={index} {...post} />
-            ))}
+            {blogPosts
+              .filter(post => !kategori || post.category === kategori)
+              .filter(post => post.rating >= rating)
+              .map((post, index) => (
+                <BlogCard key={index} {...post} />
+              ))}
           </div>
         </div>
       </div>

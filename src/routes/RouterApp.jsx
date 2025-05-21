@@ -5,6 +5,7 @@ import DetailTour from "../pages/DetailTour.jsx";
 import InputTourPages from "../pages/InputTourPages.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
+import BookmarkPages from "../pages/BookmarkPages.jsx";
 
 const RouterApp = () => {
   return (
@@ -20,6 +21,7 @@ const RouterApp = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/bookmarks" element={<BookmarkPages />} />
         <Route path="/detailtour" element={<DetailTour />} />
         <Route path="/inputtour" element={<InputTourPages />} />
         <Route path="/" element={<LoginPage />} />
