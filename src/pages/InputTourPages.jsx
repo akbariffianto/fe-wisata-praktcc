@@ -1,38 +1,94 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../utils/utils";
 
 const InputTourPages = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    image: null,
-    namaWisata: '',
-    lokasiWisata: '',
-    deskripsi: '',
-    anggaran: '',
-    rating: 3
+    foto_wisata: null,
+    nama_wisata: "",
+    lokasi_wisata: "",
+    kategori_wisata: "",
+    deskripsi_wisata: "",
+    rating_wisata: ""
   });
+
+  // Tour types for dropdown matching enum values
+  const tourTypes = [
+    { value: "pegunungan", label: "Pegunungan" },
+    { value: "perairan", label: "Perairan" },
+    { value: "budaya", label: "Budaya" },
+    { value: "kuliner", label: "Kuliner" }
+  ];
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, image: file });
+      setFormData({ ...formData, foto_wisata: file });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    try {
+      const data = new FormData();
+
+      // Field names exactly matching DB columns
+      data.append("nama_wisata", formData.nama_wisata);
+      data.append("lokasi_wisata", formData.lokasi_wisata);
+      data.append("kategori_wisata", formData.kategori_wisata);
+      data.append("deskripsi_wisata", formData.deskripsi_wisata);
+      data.append("rating_wisata", parseFloat(formData.rating_wisata));
+
+      if (formData.foto_wisata) {
+        data.append("foto_wisata", formData.foto_wisata);
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const response = await axios.post(`${BASE_URL}/wisata`, data, config);
+
+      if (response.data && response.data.message === "Data berhasil ditambahkan") {
+        alert(response.data.message);
+        navigate("/tourpage");
+      } else {
+        throw new Error(response.data.message || "Gagal menambahkan data wisata");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         "Gagal menambahkan data wisata. Silakan coba lagi.";
+      alert(errorMessage);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
-        <button 
-          onClick={() => navigate('/tourpage')}
+        <button
+          onClick={() => navigate("/tourpage")}
           className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+            />
           </svg>
           Kembali
         </button>
@@ -44,16 +100,16 @@ const InputTourPages = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Upload Gambar Wisata</h2>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              {formData.image ? (
+              {formData.foto_wisata ? (
                 <div className="relative">
-                  <img 
-                    src={URL.createObjectURL(formData.image)} 
-                    alt="Preview" 
+                  <img
+                    src={URL.createObjectURL(formData.foto_wisata)}
+                    alt="Preview"
                     className="max-w-full h-auto rounded"
                   />
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, image: null })}
+                    onClick={() => setFormData({ ...formData, foto_wisata: null })}
                     className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
                   >
                     ×
@@ -68,12 +124,20 @@ const InputTourPages = () => {
                     className="hidden"
                     id="imageInput"
                   />
-                  <label
-                    htmlFor="imageInput"
-                    className="cursor-pointer text-gray-500 hover:text-gray-700"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 mx-auto mb-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                  <label htmlFor="imageInput" className="cursor-pointer text-gray-500 hover:text-gray-700">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-12 h-12 mx-auto mb-2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                      />
                     </svg>
                     <span>Klik untuk upload gambar</span>
                   </label>
@@ -93,8 +157,10 @@ const InputTourPages = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.namaWisata}
-                  onChange={(e) => setFormData({ ...formData, namaWisata: e.target.value })}
+                  value={formData.nama_wisata}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nama_wisata: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -106,8 +172,10 @@ const InputTourPages = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.lokasiWisata}
-                  onChange={(e) => setFormData({ ...formData, lokasiWisata: e.target.value })}
+                  value={formData.lokasi_wisata}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lokasi_wisata: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -115,11 +183,34 @@ const InputTourPages = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kategori Wisata
+                </label>
+                <select
+                  value={formData.kategori_wisata}
+                  onChange={(e) =>
+                    setFormData({ ...formData, kategori_wisata: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Pilih Kategori</option>
+                  {tourTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Deskripsi
                 </label>
                 <textarea
-                  value={formData.deskripsi}
-                  onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                  value={formData.deskripsi_wisata}
+                  onChange={(e) =>
+                    setFormData({ ...formData, deskripsi_wisata: e.target.value })
+                  }
                   rows="4"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   required
@@ -128,29 +219,19 @@ const InputTourPages = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Anggaran (Rp)
-                </label>
-                <input
-                  type="number"
-                  value={formData.anggaran}
-                  onChange={(e) => setFormData({ ...formData, anggaran: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rating ({formData.rating})
+                  Rating {formData.rating_wisata && `(${formData.rating_wisata})`}
                 </label>
                 <input
                   type="range"
                   min="1"
                   max="5"
                   step="0.1"
-                  value={formData.rating}
-                  onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                  value={formData.rating_wisata}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rating_wisata: e.target.value })
+                  }
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  required
                 />
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>1</span>

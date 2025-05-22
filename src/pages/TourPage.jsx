@@ -1,53 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BlogCard from "../components/BlogCard";
 import FilterDropdown from "../components/FilterDropdown";
 import { useAuthContext } from "../auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../utils/utils";
 
 const TourPages = () => {
-  const { userInfo } = useAuthContext();
-  const [kategori, setKategori] = useState("");
-  const [rating, setRating] = useState(0);
+  const navigate = useNavigate();
+  const { userInfo, logout } = useAuthContext();
+  const [tours, setTours] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    kategori: "",
+    rating: 0
+  });
 
+  // Fetch tours data with filters
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        setLoading(true);
+        let url = `${BASE_URL}`;
+        const params = new URLSearchParams();
+
+        if (filters.kategori) {
+          params.append('kategori', filters.kategori);
+        }
+        if (filters.rating > 0) {
+          params.append('rating', filters.rating);
+        }
+
+        const queryString = params.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+
+        const response = await axios.get(url);
+        setTours(response.data);
+      } catch (error) {
+        console.error('Error fetching tours:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTours();
+  }, [filters]);
+  
   const filterOptions = {
     kategori: [
-      { value: "alam", label: "Alam" },
+      { value: "pegunungan", label: "Pegunungan" },
+      { value: "perairan", label: "Perairan" },
       { value: "budaya", label: "Budaya" },
       { value: "kuliner", label: "Kuliner" },
-    ],
+    ]
   };
 
-  const blogPosts = [
-    {
-      imageUrl: "https://loremflickr.com/320/240?random=1",
-      title: "Finding best places to visit in California",
-      location: "California",
-      views: 35,
-      likes: 20,
-      comments: 15,
-      category: "alam",
-      rating: 4.5,
-    },
-    {
-      imageUrl: "https://loremflickr.com/320/240?random=2",
-      title: "Top 10 beaches in Hawaii",
-      location: "Hawaii",
-      views: 42,
-      likes: 25,
-      comments: 18,
-      category: "alam",
-      rating: 4.0,
-    },
-    {
-      imageUrl: "https://loremflickr.com/320/240?random=3",
-      title: "Must-visit restaurants in New York",
-      location: "New York",
-      views: 38,
-      likes: 22,
-      comments: 12,
-      category: "kuliner",
-      rating: 3.5,
-    },
-  ];
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-slate-100 py-6 sm:py-12">
@@ -78,26 +91,29 @@ const TourPages = () => {
               <button className="bg-indigo-500 text-white px-4 py-2 rounded-lg shadow-lg shadow-indigo-500/50 hover:bg-indigo-600 transition-colors">
                 <a href="/inputtour">Input Rekomendasi</a>
               </button>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg shadow-red-500/50 hover:bg-red-600 transition-colors">
+              <button 
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg shadow-red-500/50 hover:bg-red-600 transition-colors"
+              >
                 Log out
               </button>
             </div>
           </div>
 
           {/* Updated Filter Section */}
-          <div className="flex items-center gap-8 mb-8">
+          <div className="flex items-center gap-6 mb-8 flex-wrap">
             <div className="w-48">
               <FilterDropdown
-                title="Kategori"
+                title="Kategori Wisata"
                 options={filterOptions.kategori}
-                value={kategori}
-                onChange={setKategori}
+                value={filters.kategori}
+                onChange={(value) => setFilters(prev => ({ ...prev, kategori: value }))}
               />
             </div>
             
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-xs">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rating Minimum: {rating.toFixed(1)}
+                Rating Minimum: {filters.rating.toFixed(1)}
               </label>
               <div className="flex items-center gap-4">
                 <input
@@ -105,25 +121,38 @@ const TourPages = () => {
                   min="0"
                   max="5"
                   step="0.1"
-                  value={rating}
-                  onChange={(e) => setRating(parseFloat(e.target.value))}
+                  value={filters.rating}
+                  onChange={(e) => setFilters(prev => ({ 
+                    ...prev, 
+                    rating: parseFloat(e.target.value) 
+                  }))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-medium text-gray-600 w-12">
-                  {rating.toFixed(1)}/5
+                  {filters.rating.toFixed(1)}/5
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-6 mt-10">
-            {blogPosts
-              .filter(post => !kategori || post.category === kategori)
-              .filter(post => post.rating >= rating)
-              .map((post, index) => (
-                <BlogCard key={index} {...post} />
+          {loading ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tours.map((tour) => (
+                <BlogCard
+                  key={tour.id_wisata}
+                  imageUrl={tour.imageUrl}
+                  title={tour.nama_wisata}
+                  location={tour.lokasi}
+                  description={tour.description}
+                  rating={tour.rating}
+                  price={tour.harga}
+                  type={tour.tipe}
+                />
               ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
