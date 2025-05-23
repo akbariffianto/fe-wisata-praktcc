@@ -9,7 +9,10 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
-  const [userInfo, setUserInfo] = useState(null);
+  const [userId, setUserId] = useState(() => {
+    const savedUserId = localStorage.getItem('userId');
+    return savedUserId || null;
+  });
 
   const login = async (username, password) => {
     try {
@@ -21,8 +24,9 @@ export const AuthProvider = ({ children }) => {
       console.log('Access token:', token);
       
       localStorage.setItem('accessToken', token);
+      localStorage.setItem('userId', res.data.userId);
       setAccessToken(token);
-      setUserInfo({ username: res.data.username });
+      setUserId(res.data.userId);
 
       return res.data;
     } catch (err) {
@@ -40,8 +44,9 @@ export const AuthProvider = ({ children }) => {
     } finally {
       // Bersihkan state dan storage
       setAccessToken(null);
-      setUserInfo(null);
+      setUserId(null);
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('userId');
       Cookies.remove("refreshToken");
     }
   };
@@ -73,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider 
       value={{ 
         accessToken, 
-        userInfo, 
+        userId, 
         login, 
         logout, 
         refreshToken,

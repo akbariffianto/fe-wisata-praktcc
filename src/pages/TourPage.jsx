@@ -7,21 +7,19 @@ import BlogCard from "../components/BlogCard";
 
 const TourPages = () => {
   const navigate = useNavigate();
-  const { userInfo, logout } = useAuthContext(); // Using AuthContext instead of useAuth
+  const { userId, logout } = useAuthContext();
   
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fungsi untuk mengambil data tour
   const fetchTours = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(`${BASE_URL}/wisata`); // Removed /wisata since it's in BASE_URL
+      const response = await axios.get(`${BASE_URL}/wisata`); 
 
-      // Struktur respons diharapkan memiliki 'data.data' seperti di NotesApp dan dokumentasi awal
       if (response.data && response.data.message === "Data berhasil didapatkan") {
         if (Array.isArray(response.data.data)) {
           setTours(response.data.data);
@@ -50,8 +48,14 @@ const TourPages = () => {
   };
 
   useEffect(() => {
+    // Redirect if no userId
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
     fetchTours();
-  }, []); // Dependency array kosong agar fetch hanya sekali saat mount
+  }, [userId]); // Changed dependency
 
   const handleLogout = () => { // Removed async since logout is handled in context
     logout();
@@ -64,8 +68,7 @@ const TourPages = () => {
         <div className="max-w-screen-lg mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
             <h2 className="font-bold text-3xl sm:text-4xl text-slate-700 font-display text-center sm:text-left">
-              {/* Sesuaikan dengan struktur userInfo/user dari useAuth */}
-              Hi, {userInfo?.username || "Guest"}! 
+              Hi, User {userId}! {/* Changed to show userId */}
             </h2>
             <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
               <button 

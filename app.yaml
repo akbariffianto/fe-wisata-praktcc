@@ -1,5 +1,5 @@
 runtime: nodejs20
-service: notes-frontend-akbar
+service: tours-frontend-prakcc
 instance_class: F1
 
 handlers:
