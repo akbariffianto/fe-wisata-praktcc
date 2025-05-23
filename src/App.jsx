@@ -6,8 +6,9 @@ import AxiosInterceptor from "./api/AxiosInterceptor";
 const App = () => {
   return (
     <AuthProvider>
-      <AxiosInterceptor />
+      <AxiosInterceptor>
       <Router />
+      </AxiosInterceptor>
     </AuthProvider>
   );
 };
