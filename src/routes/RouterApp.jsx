@@ -6,8 +6,12 @@ import InputTourPages from "../pages/InputTourPages.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import BookmarkPages from "../pages/BookmarkPages.jsx";
+import { useAuthContext } from "../auth/AuthProvider";
 
 const RouterApp = () => {
+  const { isAuthenticated } = useAuthContext();
+  console.log('Router render, authenticated:', isAuthenticated());
+
   return (
     <Router>
       <Routes>
@@ -21,9 +25,30 @@ const RouterApp = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/bookmarks" element={<BookmarkPages />} />
-        <Route path="/detailtour" element={<DetailTour />} />
-        <Route path="/inputtour" element={<InputTourPages />} />
+        <Route
+          path="/bookmark"
+          element={
+            <ProtectedRoute>
+              <BookmarkPages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/detailtour/:id_wisata"
+          element={
+            <ProtectedRoute>
+              <DetailTour />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inputtour"
+          element={
+            <ProtectedRoute>
+              <InputTourPages />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<LoginPage />} />
       </Routes>
     </Router>

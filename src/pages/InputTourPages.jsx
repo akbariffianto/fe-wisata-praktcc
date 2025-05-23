@@ -5,8 +5,10 @@ import { BASE_URL } from "../utils/utils";
 
 const InputTourPages = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false); // Add this
   const [formData, setFormData] = useState({
     foto_wisata: null,
+    imagePreview: null,
     nama_wisata: "",
     lokasi_wisata: "",
     kategori_wisata: "",
@@ -25,12 +27,51 @@ const InputTourPages = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, foto_wisata: file });
+      // Validasi ukuran dan tipe file
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!validTypes.includes(file.type)) {
+        alert('Format foto tidak valid. Gunakan PNG, JPG, atau JPEG');
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      if (file.size > maxSize) {
+        alert('Ukuran foto maksimal 5MB');
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      // Preview image
+      setFormData({ 
+        ...formData, 
+        foto_wisata: file,
+        imagePreview: URL.createObjectURL(file)
+      });
+
+      // Cleanup preview URL when component unmounts
+      return () => {
+        URL.revokeObjectURL(formData.imagePreview);
+      };
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validasi form
+    if (!formData.nama_wisata || 
+        !formData.lokasi_wisata || 
+        !formData.kategori_wisata || 
+        !formData.deskripsi_wisata || 
+        !formData.rating_wisata || 
+        !formData.foto_wisata) {
+      alert('Mohon lengkapi semua field');
+      return;
+    }
+
+    setIsLoading(true); // Set loading true before submission
 
     try {
       const data = new FormData();
@@ -44,14 +85,17 @@ const InputTourPages = () => {
 
       if (formData.foto_wisata) {
         data.append("foto_wisata", formData.foto_wisata);
+        console.log('Uploading image:', formData.foto_wisata);
       }
 
       const config = {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
       };
 
+      console.log('Sending request to:', `${BASE_URL}/wisata`);
       const response = await axios.post(`${BASE_URL}/wisata`, data, config);
 
       if (response.data && response.data.message === "Data berhasil ditambahkan") {
@@ -66,6 +110,8 @@ const InputTourPages = () => {
                          error.message || 
                          "Gagal menambahkan data wisata. Silakan coba lagi.";
       alert(errorMessage);
+    } finally {
+      setIsLoading(false); // Set loading false after completion
     }
   };
 
@@ -100,16 +146,23 @@ const InputTourPages = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Upload Gambar Wisata</h2>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              {formData.foto_wisata ? (
+              {formData.imagePreview ? (
                 <div className="relative">
                   <img
-                    src={URL.createObjectURL(formData.foto_wisata)}
+                    src={formData.imagePreview}
                     alt="Preview"
                     className="max-w-full h-auto rounded"
                   />
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, foto_wisata: null })}
+                    onClick={() => {
+                      URL.revokeObjectURL(formData.imagePreview);
+                      setFormData({ 
+                        ...formData, 
+                        foto_wisata: null,
+                        imagePreview: null 
+                      });
+                    }}
                     className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
                   >
                     ×
@@ -119,10 +172,42 @@ const InputTourPages = () => {
                 <div>
                   <input
                     type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
+                    accept=".png,.jpg,.jpeg,image/png,image/jpeg,image/jpg"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        // Validasi ukuran dan tipe file
+                        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+
+                        if (!validTypes.includes(file.type)) {
+                          alert('Format foto tidak valid. Gunakan PNG, JPG, atau JPEG');
+                          e.target.value = ''; // Reset input
+                          return;
+                        }
+
+                        if (file.size > maxSize) {
+                          alert('Ukuran foto maksimal 5MB');
+                          e.target.value = ''; // Reset input
+                          return;
+                        }
+
+                        console.log('Selected file:', file);
+                        setFormData({ 
+                          ...formData, 
+                          foto_wisata: file,
+                          imagePreview: URL.createObjectURL(file)
+                        });
+
+                        // Cleanup preview URL when component unmounts
+                        return () => {
+                          URL.revokeObjectURL(formData.imagePreview);
+                        };
+                      }
+                    }}
                     className="hidden"
                     id="imageInput"
+                    required
                   />
                   <label htmlFor="imageInput" className="cursor-pointer text-gray-500 hover:text-gray-700">
                     <svg

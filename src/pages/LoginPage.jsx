@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useAuth from "../auth/useAuth";
+import { useAuthContext } from "../auth/AuthProvider";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuthContext();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +18,7 @@ const LoginPage = () => {
 
     try {
       const result = await login(username, password);
-      if (result) {
+      if (result?.accessToken) {
         navigate("/tourpage");
       }
     } catch (error) {
