@@ -7,7 +7,7 @@ import BlogCard from "../components/BlogCard";
 
 const TourPages = () => {
   const navigate = useNavigate();
-  const { userId, logout } = useAuthContext();
+  const { userId, logout, username } = useAuthContext();
   
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +105,7 @@ const TourPages = () => {
         <div className="max-w-screen-lg mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <h2 className="font-bold text-3xl sm:text-4xl text-slate-700 font-display text-center sm:text-left">
-              Hi, User {userId}!
+              Hi, {username}!
             </h2>
             <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
               <button 

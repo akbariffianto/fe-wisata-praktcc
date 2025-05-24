@@ -5,7 +5,7 @@ import DetailTour from "../pages/DetailTour.jsx";
 import InputTourPages from "../pages/InputTourPages.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
-import BookmarkPages from "../pages/BookmarkPages.jsx";
+import BookmarkPages from "../pages/BookmarkPage.jsx";
 import EditTourPages from "../pages/EditTourPages.jsx";
 import { useAuthContext } from "../auth/AuthProvider";
 
@@ -27,7 +27,7 @@ const RouterApp = () => {
           }
         />
         <Route
-          path="/bookmark/:userId"
+          path="/bookmark"
           element={
             <ProtectedRoute>
               <BookmarkPages />

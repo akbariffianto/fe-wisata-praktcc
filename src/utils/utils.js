@@ -1,1 +1,1 @@
-export const BASE_URL = "http://localhost:5000/api";
+export const BASE_URL = "https://prak-tcc-projek-akhir-13926268988.us-central1.run.app/api";

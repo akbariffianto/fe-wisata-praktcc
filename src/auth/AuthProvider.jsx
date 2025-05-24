@@ -13,6 +13,10 @@ export const AuthProvider = ({ children }) => {
     const savedUserId = localStorage.getItem('userId');
     return savedUserId || null;
   });
+  const [username, setUserName] = useState(() => {
+    const savedUserName = localStorage.getItem('userName');
+    return savedUserName || null;
+  });
 
   const login = async (username, password) => {
     try {
@@ -25,8 +29,10 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('accessToken', token);
       localStorage.setItem('userId', res.data.userId);
+      localStorage.setItem('userName', res.data.username);
       setAccessToken(token);
       setUserId(res.data.userId);
+      setUserName(res.data.username);
 
       return res.data;
     } catch (err) {
@@ -78,7 +84,8 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider 
       value={{ 
         accessToken, 
-        userId, 
+        userId,
+        username, 
         login, 
         logout, 
         refreshToken,
